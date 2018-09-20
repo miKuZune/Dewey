@@ -6,6 +6,7 @@ public class CameraFollowPlayer : MonoBehaviour {
 
     public float offsetX;
     public float offsetY;
+    public float offsetZ;
 
     Vector3 offset;
     // Use this for initialization
@@ -14,10 +15,11 @@ public class CameraFollowPlayer : MonoBehaviour {
 		if(player == null){player = GameObject.FindGameObjectWithTag("Player");}
 
         offset = Vector3.zero;
-        if (offsetX == 0) { offset.x = -5; } else { offset.x = offsetX; }
-        if (offsetY == 0) { offset.y = 5; } else { offset.y = offsetY; }
+        offset.x = offsetX;
+        offset.y = offsetY;
+        offset.z = offsetZ;
 
-	}
+    }
 	
 	// Update is called once per frame
 	void Update ()
