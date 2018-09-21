@@ -11,6 +11,10 @@ public class Health : MonoBehaviour {
 
     public Text healthText;
 
+    string objectTag;
+
+    bool hasDied;
+
     void Start()
     {
         UnitHealth = baseHealth;
@@ -23,6 +27,12 @@ public class Health : MonoBehaviour {
         CheckForDeath();
 
         UpdateHealth();
+
+        Animator anim = GetComponent<Animator>();
+        if(anim != null && !hasDied)
+        {
+            anim.SetTrigger("TakeDamage");
+        }
     }
 
     public void AddHealth(int add)
@@ -52,12 +62,23 @@ public class Health : MonoBehaviour {
     {
         if(UnitHealth <= 0)
         {
+            UnitHealth = 0;
             Death();
         }
     }
 
     void Death()
     {
-        Destroy(this.gameObject);
+        Animator anim = GetComponent<Animator>();
+        if(gameObject.tag == "Player")
+        {
+            anim.SetTrigger("isDead");
+            anim.SetLayerWeight(1, 0);
+        }
+        else
+        {
+            Destroy(this.gameObject);
+        }
+        
     }
 }

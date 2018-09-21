@@ -41,13 +41,14 @@ public class PlayerManager : MonoBehaviour {
             {
                 NewDestination(hit);
                 targetedEnemy = hit.transform.gameObject;
+                GetComponent<Animator>().SetTrigger("isMoving");
             }
             else if(hit.transform.tag == "Chest")
             {
                 NewDestination(hit);
                 
                 targetChest = hit.transform.gameObject;
-                Debug.Log(targetChest.name);
+                GetComponent<Animator>().SetTrigger("isMoving");
             }
             //If anything clicked on with no tag.
             else
@@ -55,6 +56,7 @@ public class PlayerManager : MonoBehaviour {
                 NewDestination(hit);
                 targetedEnemy = null;
                 if (playerNav.isStopped) { ToggleStop(); }
+                GetComponent<Animator>().SetTrigger("isMoving");
             }
         }
     }
@@ -75,6 +77,7 @@ public class PlayerManager : MonoBehaviour {
         Health enemyHealth = targetedEnemy.GetComponent<Health>();
 
         enemyHealth.TakeDamage(playerBaseDamage + damageBonus);
+        Debug.Log("Damage dealt");
     }
 
     void ToggleStop()
@@ -130,7 +133,14 @@ public class PlayerManager : MonoBehaviour {
             if(dist < attackDist)
             {
                 targetChest.GetComponent<Chest>().OnOpen();
+                GetComponent<Animator>().SetTrigger("isLooting");
             }
+        }
+
+        float distToDestination = Vector3.Distance(playerNav.destination, transform.position);
+        if(distToDestination < 0.5f)
+        {
+            GetComponent<Animator>().SetBool("isMoving", false);
         }
 
         //Test key
