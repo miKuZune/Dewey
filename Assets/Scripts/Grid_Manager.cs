@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Grid_Manager : MonoBehaviour
 {
@@ -16,12 +17,18 @@ public class Grid_Manager : MonoBehaviour
 
 	void Start() 
 	{
-
-		level_Generator = GameObject.Find("MapManager").GetComponent<Level_Generator>();
-
-		GetGridRendererSize(gridObj);
-		InstantiateGrid();
+        Generate();
 	}
+
+    public void Generate()
+    {
+        level_Generator = GameObject.Find("MapManager").GetComponent<Level_Generator>();
+
+        GetGridRendererSize(gridObj);
+        InstantiateGrid();
+
+        GameObject.Find("NavMesh").GetComponent<NavMeshSurface>().BuildNavMesh();
+    }
 
 
     public void InstantiateGrid()

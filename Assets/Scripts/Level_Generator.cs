@@ -82,6 +82,12 @@ public class Level_Generator : MonoBehaviour
 
     }
 
+    public void ClearMap()
+    {
+        Destroy(GameObject.Find("Grid"));
+        isMapGenerated = false;
+    }
+
 	public void GenerateMap()
 	{
 

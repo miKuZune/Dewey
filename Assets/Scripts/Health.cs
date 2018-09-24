@@ -21,6 +21,11 @@ public class Health : MonoBehaviour {
         UpdateHealth();
     }
 
+    public int GetCurrHealth()
+    {
+        return UnitHealth;
+    }
+
     public void TakeDamage(int damage)
     {
         UnitHealth -= damage;
@@ -33,6 +38,16 @@ public class Health : MonoBehaviour {
         {
             anim.SetTrigger("TakeDamage");
         }
+
+        if(gameObject.tag == "Player")
+        {
+            UpdatePersistantHealth();
+        }
+    }
+
+    public void UpdatePersistantHealth()
+    {
+        PersistantData.Health = UnitHealth;
     }
 
     public void AddHealth(int add)
@@ -40,6 +55,12 @@ public class Health : MonoBehaviour {
         UnitHealth += add;
         CheckForHealthCap();
         UpdateHealth();
+        UpdatePersistantHealth();
+    }
+
+    public void SetHealth(int newHealth)
+    {
+        UnitHealth = newHealth;
     }
 
     public void AddBaseHealth(int add)
@@ -53,7 +74,7 @@ public class Health : MonoBehaviour {
         if (UnitHealth > baseHealth) { UnitHealth = baseHealth; }
     }
 
-    void UpdateHealth()
+    public void UpdateHealth()
     {
         if (healthText != null) { healthText.text = "" + UnitHealth + " / " + baseHealth; }
     }
@@ -74,6 +95,7 @@ public class Health : MonoBehaviour {
         {
             anim.SetTrigger("isDead");
             anim.SetLayerWeight(1, 0);
+            GetComponent<PlayerManager>().HasDied();
         }
         else
         {

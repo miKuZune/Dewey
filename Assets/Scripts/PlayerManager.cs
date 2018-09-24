@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 public class PlayerManager : MonoBehaviour {
 
     public float attackDist;
@@ -14,18 +15,48 @@ public class PlayerManager : MonoBehaviour {
 
     GameObject targetedEnemy;
     GameObject targetChest;
+    GameObject targetStair;
     bool isAttacking;
 
     float attackTimer;
 
     public Text damageText;
+    public GameObject DeathUI;
 
+    bool isDead;
+    
 	// Use this for initialization
 	void Start ()
     {
         playerNav = GetComponent<NavMeshAgent>();
+        
+
+        if(PersistantData.Health == 0)
+        {
+            PersistantData.Health = GetComponent<Health>().GetCurrHealth();
+        }
+        else
+        {
+            GetComponent<Health>().SetHealth(PersistantData.Health);
+        }
+
+        if(PersistantData.DamageBonus == 0)
+        {
+            PersistantData.DamageBonus = damageBonus;
+        }
+        else
+        {
+            damageBonus = PersistantData.DamageBonus;
+        }
+
+        PersistantData.CurrentFloor = PersistantData.CurrentFloor + 1;
+
         UpdateDamage();
-	}
+        GetComponent<Health>().UpdateHealth();
+
+        DeathUI.SetActive(false);
+
+    }
 
     void OnClick(Vector3 InputPos)
     {
@@ -33,6 +64,10 @@ public class PlayerManager : MonoBehaviour {
         Ray ray = Camera.main.ScreenPointToRay(InputPos);
 
         isAttacking = false;
+        targetedEnemy = null;
+        targetChest = null;
+        targetStair = null;
+
 
         if (Physics.Raycast(ray, out hit))
         {
@@ -50,11 +85,17 @@ public class PlayerManager : MonoBehaviour {
                 targetChest = hit.transform.gameObject;
                 GetComponent<Animator>().SetTrigger("isMoving");
             }
+            else if(hit.transform.tag == "Stair")
+            {
+                targetStair = hit.transform.gameObject;
+                GetComponent<Animator>().SetTrigger("isMoving");
+                NewDestination(hit);
+            }
             //If anything clicked on with no tag.
             else
             {
                 NewDestination(hit);
-                targetedEnemy = null;
+                
                 if (playerNav.isStopped) { ToggleStop(); }
                 GetComponent<Animator>().SetTrigger("isMoving");
             }
@@ -64,6 +105,11 @@ public class PlayerManager : MonoBehaviour {
     void UpdateDamage()
     {
         damageText.text = playerBaseDamage + damageBonus + "";
+    }
+
+    public void HasDied()
+    {
+        isDead = true;
     }
 
     public void AddDamage(int bonus)
@@ -90,10 +136,20 @@ public class PlayerManager : MonoBehaviour {
     {
         playerNav.destination = hitInfo.point;
     }
+
+    public void ReturnToMainMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
 	
 	// Update is called once per frame
 	void Update ()
     {
+        if(isDead)
+        {
+            DeathUI.SetActive(true);
+            return;
+        }
 		if(Input.GetKeyDown(KeyCode.Mouse0))
         {
             OnClick(Input.mousePosition);
@@ -135,6 +191,17 @@ public class PlayerManager : MonoBehaviour {
             {
                 targetChest.GetComponent<Chest>().OnOpen();
                 GetComponent<Animator>().SetTrigger("isLooting");
+            }
+        }
+
+        if(targetStair != null)
+        {
+            float distToStair = Vector3.Distance(transform.position, targetStair.transform.position);
+
+            if(distToStair < attackDist)
+            {
+                PersistantData.DamageBonus = damageBonus;
+                SceneManager.LoadScene(1);
             }
         }
 
